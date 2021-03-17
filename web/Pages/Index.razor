@@ -1,4 +1,38 @@
 ﻿@page "/"
+@inject HttpClient Http
 
 <h1>Tips</h1>
 
+@if (tips == null)
+{
+    <p><em>Loading...</em></p>
+}
+else{
+    <MatTable Items="@tips" class="mat-elevation-z5" ShowPaging="false" PageSize=40>
+        <MatTableRow>
+            <td>@context.Name</td>
+            <td>@context.HRef</td>
+        </MatTableRow>
+    </MatTable>
+}
+
+@code
+{
+    public class Tip
+    {
+        public string Name { get; set; }
+        public string HRef { get; set; }
+
+        public Tip(string name, string href)
+        {
+            this.Name = name;
+            this.HRef = href;
+        }
+    }
+    private Tip[] tips;
+   protected override async Task OnInitializedAsync()
+    {
+        tips = await Http.GetFromJsonAsync<Tip[]>("https://saitech.azurewebsites.net/api/techtips");
+    }
+
+}
