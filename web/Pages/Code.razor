@@ -1,4 +1,76 @@
 ﻿@page "/code"
 @inject HttpClient Http
 
-<h1>Code</h1>
+<h3>Snippets</h3>
+
+@if (snippets == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <MatAccordion Multi="true">
+        @foreach(var @snippet in @snippets.OrderBy(r=> r.Name)){
+<MatExpansionPanel LazyRendering=true>
+                    <MatExpansionPanelSummary>
+                        <MatExpansionPanelHeader>@snippet.Name</MatExpansionPanelHeader>
+                    </MatExpansionPanelSummary>
+                    <MatExpansionPanelDetails>
+                        <p>@snippet.Details</p>
+                    </MatExpansionPanelDetails>
+                </MatExpansionPanel>            
+        }
+    </MatAccordion>    
+}
+
+@code
+{
+
+    public static HttpClient Client;    // temporary
+    public class Detail{
+        public string Data {get;set;}
+    }
+    public class CodeDetail{
+        public string Name {get; set;}
+        public Detail Details {get;set;}
+    }
+    public class Snippet
+    {
+        public string Name { get; set; }
+        public string HRef { get; set; }
+
+        private string _details;
+        public string Details{
+            get {
+                if(this._details == null){
+                    var task = UpdateDetail();
+                    return "Loading";
+                }
+                return this._details;
+            }
+        }
+
+        [Parameter] public EventCallback<string> DetailsChanged { get; set; }
+
+        private async Task UpdateDetail()
+        {
+        
+            var info = await Client.GetFromJsonAsync<CodeDetail>(this.HRef);
+            this._details = info.Details.Data;
+            await DetailsChanged.InvokeAsync(Details);
+        }
+
+        public Snippet(string name, string href)
+        {
+            this.Name = name;
+            this.HRef = href;
+        }
+    }
+    private Snippet[] snippets;
+    protected override async Task OnInitializedAsync()
+    {
+        Client = Http;
+        snippets = await Http.GetFromJsonAsync<Snippet[]>($"{Constants.BaseUrl}/codesnippets");
+    }
+
+}

@@ -1,0 +1,53 @@
+@page "/tips/{category}"
+@inject HttpClient Http
+
+<h1>@Category</h1>
+
+@if (tips == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <MatTable Items="@tips" class="mat-elevation-z5" ShowPaging="false" PageSize=40>
+        <MatTableRow>
+            @if (!string.IsNullOrEmpty(@context.Url))
+            {
+                <td><a href="@context.Url">@context.Name</a></td>
+            }
+            else
+            {
+                <td>@context.Name</td>
+            }
+            
+            <td>@context.Command</td>
+    </MatTableRow>
+</MatTable>
+}
+
+
+@code{
+    [Parameter]
+    public string Category { get; set; }
+
+    class Tip
+    {
+        public Tip(string name, string command, string url)
+        {
+            this.Name = name;
+            this.Command = command;
+            this.Url = url;
+        }
+
+        public string Name { get; set; }
+        public string Command { get; set; }
+        public string Url { get; set; }
+    }
+
+    private Tip[] tips;
+    protected override async Task OnInitializedAsync()
+    {
+        tips = await Http.GetFromJsonAsync<Tip[]>($"{Constants.BaseUrl}/techtips/{this.Category}");
+    }
+
+}

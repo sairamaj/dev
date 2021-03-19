@@ -3,36 +3,36 @@
 
 <h1>Tips</h1>
 
-@if (tips == null)
+@if (categories == null)
 {
     <p><em>Loading...</em></p>
 }
-else{
-    <MatTable Items="@tips" class="mat-elevation-z5" ShowPaging="false" PageSize=40>
+else
+{
+    <MatTable Items="@categories" class="mat-elevation-z5" ShowPaging="false" PageSize=40>
         <MatTableRow>
-            <td>@context.Name</td>
-            <td>@context.HRef</td>
+            <td><a href="/tips/@context.Name">@context.Name</a></td>
         </MatTableRow>
     </MatTable>
 }
 
 @code
 {
-    public class Tip
+    public class Category
     {
         public string Name { get; set; }
         public string HRef { get; set; }
 
-        public Tip(string name, string href)
+        public Category(string name, string href)
         {
             this.Name = name;
             this.HRef = href;
         }
     }
-    private Tip[] tips;
-   protected override async Task OnInitializedAsync()
+    private Category[] categories;
+    protected override async Task OnInitializedAsync()
     {
-        tips = await Http.GetFromJsonAsync<Tip[]>("https://saitech.azurewebsites.net/api/techtips");
+        categories = await Http.GetFromJsonAsync<Category[]>($"{Constants.BaseUrl}/techtips");
     }
 
 }
