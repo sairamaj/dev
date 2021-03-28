@@ -1,0 +1,21 @@
+@page "/snippet/{name}"
+@inject HttpClient Http
+
+@if(detail == null){
+    <p><em>Loading...</em></p>
+}else{
+    <p>@((MarkupString) @detail.DetailData)</p>
+}
+
+
+@code{
+   SnippetDetail detail;
+   [Parameter]
+   public string Name {get; set;}
+
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine($"Snippet name:{this.Name}");
+        detail = await Http.GetFromJsonAsync<SnippetDetail>($"{Constants.BaseUrl}/codesnippets/{this.Name}");
+    } 
+}
